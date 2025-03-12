@@ -8,28 +8,35 @@ FROM php:5.6.40-apache
 #Указываем ссылку до debian-архивов:
 COPY sources.list /etc/apt/sources.list
 
-#Добавить и распаковать OCI-драйвер для oracle db:
-ADD oracle/instantclient-basic-linux.x64-12.2.0.1.0.tar.gz /usr/local
-ADD oracle/instantclient-sdk-linux.x64-12.2.0.1.0.tar.gz /usr/local
-ADD oracle/instantclient-sqlplus-linux.x64-12.2.0.1.0.tar.gz /usr/local
+ENV LD_LIBRARY_PATH=/usr/local/instantclient:$LD_LIBRARY_PATH
+ENV ORACLE_HOME=/usr/local/instantclient
 
-RUN apt-get update && apt-get -y install libzip-dev \
-  && ln -s /usr/local/instantclient_12_2 /usr/local/instantclient \
+#Добавить и распаковать OCI-драйвер для oracle db:
+ADD oracle/instantclient_12_1.tar.gz /usr/local
+#ADD oracle/instantclient-sdk-linux.x64-12.2.0.1.0.tar.gz /usr/local
+#ADD oracle/instantclient-sqlplus-linux.x64-12.2.0.1.0.tar.gz /usr/local
+
+RUN apt-get update && apt-get -y install libzip-dev mc \
+  && ln -s /usr/local/instantclient_12_1 /usr/local/instantclient \
   && ln -s /usr/local/instantclient/libclntsh.so.* /usr/local/instantclient/libclntsh.so \
   && ln -s /usr/local/instantclient/lib* /usr/lib \
   && ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus \
   && chmod 755 -R /usr/local/instantclient \
   && docker-php-ext-configure oci8 --with-oci8=instantclient,/usr/local/instantclient \
-  && docker-php-ext-install oci8 \
-  && docker-php-ext-install pdo_mysql exif opcache \
-  && apt-get install -y libicu-dev libaio-dev libxml2-dev libjpeg-dev libpng-dev libfreetype6-dev \
+  && docker-php-ext-install oci8 exif opcache
+
+#PDO_OCI:
+RUN docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/usr/local/instantclient,12.1 \
+    && docker-php-ext-install pdo_oci
+
+RUN apt-get install -y libicu-dev libaio-dev libxml2-dev libjpeg-dev libpng-dev libfreetype6-dev \
   && docker-php-ext-install intl soap dom \
   && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
   && docker-php-ext-install gd \
-  && docker-php-ext-install zip \
-  && apt-get install -y imagemagick \
-  && apt-get install -y mc \
-  && apt-get purge -y --auto-remove \
+  && docker-php-ext-install zip
+
+RUN apt-get install -y imagemagick
+RUN apt-get purge -y --auto-remove \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /var/www/html/public \

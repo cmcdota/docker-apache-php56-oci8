@@ -2,7 +2,7 @@ services:
   web:
     build:
       context: .  # Указывает, что Dockerfile находится в текущей директории
-      dockerfile: pro.Dockerfile  # Имя вашего Dockerfile
+      dockerfile: Dockerfile  # Имя вашего Dockerfile
     container_name: my_apache_app  # Имя контейнера
     ports:
       - "80:80"  # Проброс порта 80 контейнера на порт 80 хоста
