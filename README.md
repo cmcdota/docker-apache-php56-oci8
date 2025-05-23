@@ -1,5 +1,5 @@
-# paliari/apache-php56-oci8
-Docker image PHP 5.6 and Apache
+# cmcdota/docker-apache-php56-oci8
+Docker image PHP 5.6 and Nginx+php-fpm
 
 > Images with *dev* suffix contains everything in *pro* and some other requirements for development like composer
 
@@ -20,7 +20,10 @@ Docker image PHP 5.6 and Apache
 To pull from docker hub:
 
 ```
-docker pull paliari/apache-php56-oci8:1.0.4-dev
+docker build . -t timsof/php56-oci-master:latest
+docker tag timsof/php56-oci-master:latest timsof/php56-oci-master:1.0.14
+docker login
+docker push timsof/php56-oci-master:1.0.14
 ```
 
 ### Running

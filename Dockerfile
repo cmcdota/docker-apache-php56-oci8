@@ -8,7 +8,7 @@ ENV ORACLE_HOME=/usr/local/instantclient
 # Добавить и распаковать OCI-драйвер для oracle db:
 ADD oracle/instantclient_12_1.tar.gz /usr/local
 
-RUN apt-get update && apt-get -y install \
+RUN apt-get update && apt-get -y --allow-unauthenticated install \
     libzip-dev mc telnet memcached libmemcached-dev nginx \
   && ln -s /usr/local/instantclient_12_1 /usr/local/instantclient \
   && ln -s /usr/local/instantclient/libclntsh.so.* /usr/local/instantclient/libclntsh.so \
@@ -21,19 +21,19 @@ RUN apt-get update && apt-get -y install \
   && docker-php-ext-enable memcache \
   && docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/usr/local/instantclient,12.1 \
   && docker-php-ext-install pdo_oci \
-  && apt-get install -y libicu-dev libaio-dev libxml2-dev libjpeg-dev libpng-dev libfreetype6-dev \
+  && apt-get install -y --allow-unauthenticated libicu-dev libaio-dev libxml2-dev libjpeg-dev libpng-dev libfreetype6-dev \
   && docker-php-ext-install intl soap dom \
   && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
   && docker-php-ext-install gd \
   && docker-php-ext-install zip \
-  && apt-get install -y imagemagick \
+  && apt-get install -y --allow-unauthenticated imagemagick jq \
   && apt-get purge -y --auto-remove \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /var/www/html/public \
-  && pecl install xdebug-2.5.5 \
+  && pecl install xdebug-2.5.5 xhprof-0.9.4 \
   && yes no|pecl install stomp-1.0.9 \
-  && docker-php-ext-enable xdebug stomp \
+  && docker-php-ext-enable xdebug stomp xhprof \
   && rm -rf /tmp/pear/* \
   && rm /etc/nginx/sites-enabled/default
 
