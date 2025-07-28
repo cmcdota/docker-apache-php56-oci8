@@ -9,12 +9,14 @@ ENV ORACLE_HOME=/usr/local/instantclient
 ADD oracle/instantclient_12_1.tar.gz /usr/local
 
 RUN apt-get update && apt-get -y --allow-unauthenticated install \
-    libzip-dev mc telnet memcached libmemcached-dev nginx \
+    libzip-dev mc telnet memcached libmemcached-dev nginx libldap2-dev \
   && ln -s /usr/local/instantclient_12_1 /usr/local/instantclient \
   && ln -s /usr/local/instantclient/libclntsh.so.* /usr/local/instantclient/libclntsh.so \
   && ln -s /usr/local/instantclient/lib* /usr/lib \
   && ln -s /usr/local/instantclient/sqlplus /usr/bin/sqlplus \
   && chmod 755 -R /usr/local/instantclient \
+  && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
+  && docker-php-ext-install ldap \
   && docker-php-ext-configure oci8 --with-oci8=instantclient,/usr/local/instantclient \
   && docker-php-ext-install oci8 exif opcache \
   && pecl install memcache-2.2.7 \
